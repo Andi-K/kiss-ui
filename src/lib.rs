@@ -66,10 +66,13 @@ use std::collections::HashMap;
 use std::ptr;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
+use std::env;
 
 use base::BaseWidget;
 use dialog::Dialog;
 use widget::Widget;
+use timer::Timer;
+use callback::CallbackStatus;
 
 use utils::cstr::AsCStr;
 
@@ -191,6 +194,20 @@ pub fn show_gui<F>(init_fn: F) where F: FnOnce() -> Dialog + Send {
         iup_sys::IupSetGlobal(::attrs::UTF8_MODE.as_cstr(), ::attrs::values::YES.as_cstr());
     }   
 
+    // If the environment variable KISSUI_AUTOCLOSE is set and not 0, we close the GUI.
+    match env::var("KISSUI_AUTOCLOSE") {
+        Ok(val)  => { // if val.is_numeric()
+            println!("works");
+            let interval = 1000 * val.parse::<u32>().ok().expect("KISSUI_AUTOCLOSE is not numeric");
+            if interval > 0 { 
+               Timer::new()
+                   .set_interval(interval)
+                   .set_on_interval(|_ : Timer|{CallbackStatus::Close})
+                   .start();
+            }
+        },
+        _ => {},
+    }
     init_fn().show();
 
     unsafe { 
