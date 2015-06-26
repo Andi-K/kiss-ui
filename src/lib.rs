@@ -195,14 +195,15 @@ pub fn show_gui<F>(init_fn: F) where F: FnOnce() -> Dialog + Send {
     }   
 
     // If the environment variable KISSUI_AUTOCLOSE is set and not 0, we close the GUI.
+    // KISSUI_AUTOCLOSE defines how many seconds we wait.
     match env::var("KISSUI_AUTOCLOSE") {
         Ok(val)  => { // if val.is_numeric()
             println!("works");
-            let interval = 1000 * val.parse::<u32>().ok().expect("KISSUI_AUTOCLOSE is not numeric");
+            let interval = 1000 * val.parse::<u32>().ok().unwrap_or(5);
             if interval > 0 { 
                Timer::new()
                    .set_interval(interval)
-                   .set_on_interval(|_ : Timer|{CallbackStatus::Close})
+                   .set_on_interval(| _ : Timer|{CallbackStatus::Close})
                    .start();
             }
         },
