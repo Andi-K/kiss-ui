@@ -48,3 +48,9 @@ fn main() {
     });
 }
 
+#[test]
+fn gui_test_progress(){
+	use std::env;
+	env::set_var("KISSUI_AUTOCLOSE", "2");
+	main();
+}
