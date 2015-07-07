@@ -4,6 +4,3 @@ Cargo.lock
 
 *~
 *.swp
-
-tests/log/*
-tests/local_ss/*
